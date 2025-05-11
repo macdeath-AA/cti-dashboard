@@ -34,6 +34,10 @@ function App() {
     <div className='App'>
       <h1>CTI Threat Dashboard</h1>
 
+      <p style={{ marginLeft: '2rem', marginBottom: '1rem', color:'red' }}>
+      All reports have a confidence score of 100.
+      </p>
+
       <div style={{display: 'flex', gap: '2rem', marginBottom: '1rem', marginLeft: '2rem'}}>
         <div>Total Reports: {data.length}</div>
         <div>
@@ -64,8 +68,7 @@ function App() {
                 </option>
               ))}              
             </select>
-            </th>
-            <th>Confidence Score </th>
+            </th>            
             <th>Last Reported </th>
           </tr>
         </thead>
@@ -80,8 +83,16 @@ function App() {
             <tr key={idx}>
               <td>{entry.ip}</td>
               <td> {entry.countryCode} </td>
-              <td> {entry.abuseConfidenceScore} </td>
-              <td> {entry.lastReportedAt} </td>
+              <td> {new Date(entry.lastReportedAt).toLocaleDateString(
+                undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZoneName: 'short'
+                }
+              )} </td>
             </tr>
           ))}
 
