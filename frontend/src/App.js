@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
 
 countries.registerLocale(enLocale)
 
@@ -48,6 +49,17 @@ function App() {
     const timeMatch = isWithinRange(entry.lastReportedAt, selectedTime);
     return countryMatch && timeMatch;
   });
+
+  const countryCountMap = {};
+  data.forEach(entry => {
+    const countryName = getCountryName(entry.countryCode);
+    countryCountMap[countryName] = (countryCountMap[countryName] || 0 ) +1;
+  });
+
+  const chartData = Object.entries(countryCountMap)
+  .map(([name, count]) => ({name, count}))
+  .sort((a,b) => b.count - a.count)
+  .slice(0,10)
   
   return (
 
@@ -62,8 +74,12 @@ function App() {
         <div>Total Reports: {data.length}</div>
         <div> Filtered Entries: {filteredData.length}</div>
       </div>
-     
+
+      <div style={{ display: 'flex', padding: '1rem' }}>
+        {/* Table */}
+      <div style={{ flex: 1.2, marginRight: '1rem' }}> 
       <div style={{ maxHeight: '410px', overflowY: 'auto' }}>
+        <h2>Abuse IPDB Database </h2>
       <table>
         <thead>
           <tr>
@@ -72,7 +88,7 @@ function App() {
             <select
             value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
-            style={{marginTop: '5px'}}            
+            style={{marginTop: '5px', width: 'auto'}}            
             >
               <option value="All">All</option>
               {uniqueCountries.map((country, idx) => (
@@ -117,6 +133,30 @@ function App() {
         </tbody>
       </table>
       </div>
+      </div>
+
+      {/* charts */}
+      <div style={{flex:1, height: '400px'}}>
+        <h2>Graphs and Plots </h2>
+        <h3>Top 10 Countries By Report Count</h3>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart 
+          data={chartData}
+          layout='vertical'
+          margin={{left: 30}}>
+            <CartesianGrid strokeDasharray="3 3"/>
+            <XAxis type='number'/>
+            <YAxis type='category' dataKey="name" width={100}/>
+            <Tooltip/> 
+            <Bar dataKey="count" fill='#8884d8' />
+
+          </BarChart>
+
+        </ResponsiveContainer>
+
+
+      </div>
+    </div>
     </div>
   )
 }
