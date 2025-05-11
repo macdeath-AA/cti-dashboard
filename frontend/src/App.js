@@ -7,7 +7,8 @@ countries.registerLocale(enLocale)
 
 function App() {
   const [data, setData] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('All');
+  const [selectedTime, setSelectedTime] = useState('All Time');
 
   useEffect(() => {
     fetch('/full_data.json')
@@ -25,9 +26,28 @@ function App() {
     (a, b) => getCountryName(a).localeCompare(getCountryName(b))
   );
 
-  const filteredData = selectedCountry ? data.filter(
-    entry => entry.countryCode === selectedCountry
-  ) : data;
+  const isWithinRange = (dateStr, range) => {
+    const now = new Date();
+    const entryDate = new Date(dateStr);
+
+    const ranges = {
+    'Past Hour': 60 * 60 * 1000,
+    'Past 12 Hours': 12 * 60 * 60 * 1000,
+    'Past Week': 7 * 24 * 60 * 60 * 1000,
+    'Past Month': 30 * 24 * 60 * 60 * 1000,
+    'Past Year': 365 * 24 * 60 * 60 * 1000,
+    'Past 5 Years': 5 * 365 * 24 * 60 * 60 * 1000
+    };
+
+    if (range ==='All Time') return true;
+    return now - entryDate <= ranges[range]
+  }
+
+  const filteredData = data.filter(entry => {
+    const countryMatch = selectedCountry === 'All' || entry.countryCode === selectedCountry;
+    const timeMatch = isWithinRange(entry.lastReportedAt, selectedTime);
+    return countryMatch && timeMatch;
+  });
   
   return (
 
@@ -40,16 +60,9 @@ function App() {
 
       <div style={{display: 'flex', gap: '2rem', marginBottom: '1rem', marginLeft: '2rem'}}>
         <div>Total Reports: {data.length}</div>
-        <div>
-          {selectedCountry
-          ? `${getCountryName(selectedCountry)} Reports: ${filteredData.length}`
-          : 'Showing all countries'
-        }
-        </div>
-
+        <div> Filtered Entries: {filteredData.length}</div>
       </div>
-
-      
+     
       <div style={{ maxHeight: '410px', overflowY: 'auto' }}>
       <table>
         <thead>
@@ -61,7 +74,7 @@ function App() {
             onChange={(e) => setSelectedCountry(e.target.value)}
             style={{marginTop: '5px'}}            
             >
-              <option value="">All</option>
+              <option value="All">All</option>
               {uniqueCountries.map((country, idx) => (
                 <option key={idx} value={country}>
                   {getCountryName(country)}
@@ -69,17 +82,22 @@ function App() {
               ))}              
             </select>
             </th>            
-            <th>Last Reported </th>
+            <th>Last Reported <br/>
+              <select
+              value={selectedTime}
+              onChange={e => setSelectedTime(e.target.value)}
+              style={{marginTop: '5px'}}            
+              >
+              {['All Time', 'Past Hour', 'Past 12 Hours', 'Past Week', 'Past Month', 'Past Year', 'Past 5 Years'].map(
+                option => (
+                  <option key={option} value={option }>{option} </option>
+                ))}
+              </select>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {data
-          .filter(entry => {
-            const countryMatch = selectedCountry ? entry.countryCode?.toLowerCase().includes(selectedCountry.toLocaleLowerCase()) : true;
-            
-            return countryMatch;
-          })                     
-          .map((entry,idx) =>(
+          {filteredData.map((entry,idx) =>(
             <tr key={idx}>
               <td>{entry.ip}</td>
               <td> {entry.countryCode} </td>
