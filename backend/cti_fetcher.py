@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 ABUSE_API_KEY = os.getenv('ABUSE_API_KEY')
 abuse_ip_url = "https://api.abuseipdb.com/api/v2/blacklist"
 
@@ -13,7 +14,7 @@ def fetchAbusedata():
     }
     params = {
         'confidenceMinimum': 90,
-        'limit': 2000,
+        'limit': 10000,
     }
     response = requests.get(abuse_ip_url, headers=headers, params=params)
 
