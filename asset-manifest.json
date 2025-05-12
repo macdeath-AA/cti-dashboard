@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/cti-dashboard/static/css/main.058630ed.css",
-    "main.js": "/cti-dashboard/static/js/main.6c79292a.js",
+    "main.js": "/cti-dashboard/static/js/main.1dd2864b.js",
     "index.html": "/cti-dashboard/index.html",
     "main.058630ed.css.map": "/cti-dashboard/static/css/main.058630ed.css.map",
-    "main.6c79292a.js.map": "/cti-dashboard/static/js/main.6c79292a.js.map"
+    "main.1dd2864b.js.map": "/cti-dashboard/static/js/main.1dd2864b.js.map"
   },
   "entrypoints": [
     "static/css/main.058630ed.css",
-    "static/js/main.6c79292a.js"
+    "static/js/main.1dd2864b.js"
   ]
 }
