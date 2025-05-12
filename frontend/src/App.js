@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart, Legend} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart, Legend, PieChart, Pie, Cell} from 'recharts';
 countries.registerLocale(enLocale)
 
 function App() {
@@ -79,6 +79,25 @@ function App() {
   .map(([time, count]) => ({time, count}))
   .sort((a,b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`))
 
+  const selectedCountryCount = filteredData.length;
+  const otherCount = data.length - selectedCountryCount;
+  const totalCount = data.length;
+
+
+  const donutData = selectedCountry && selectedCountry !== 'All'
+  ? [
+      { name: selectedCountry, value: selectedCountryCount },
+      { name: 'Others', value: otherCount }
+    ] 
+  : [
+      { name: 'Others', value: totalCount }
+    ];
+
+
+  const countryPercent = selectedCountryCount > 0
+  ? ((selectedCountryCount / data.length) * 100).toFixed(1)
+  : 0 ;
+
 
   return (
 
@@ -88,11 +107,6 @@ function App() {
       <p style={{ marginLeft: '2rem', marginBottom: '1rem', color:'red' }}>
       All reports have a confidence score of 100.
       </p>
-
-      <div style={{display: 'flex', gap: '2rem', marginBottom: '1rem', marginLeft: '2rem'}}>
-        <div>Total Reports: {data.length}</div>
-        <div> Filtered Entries: {filteredData.length}</div>
-      </div>
 
       <div style={{ display: 'flex', padding: '1rem' }}>
         {/* Table */}
@@ -155,8 +169,47 @@ function App() {
       </div>
 
       {/* charts */}
+      
       <div style={{flex:1, height: '400px'}}>
-        <h2>Graphs and Plots </h2>        
+        
+        <h2>Graphs and Plots </h2>   
+      
+            <div style={{height:300}}>
+            <h3 style={{marginTop: '2rem'}}> Proportion of Reports: {getCountryName(selectedCountry)}</h3>
+            <ResponsiveContainer height="100%">
+              <PieChart>
+                <Pie
+                data={donutData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                fill="#8884d8"
+                label                
+                >
+                {donutData.map((entry, index) => (
+                  <Cell  key={`cell-${index}`} fill={index === 0 ? '#8884d8' : '#ccc'} />
+                ))}               
+
+                </Pie>
+                <Tooltip/>
+                <text
+                x="50%"
+                y="50%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                style={{ fontSize: '20px', fontWeight: 'bold' }}
+                >
+                  {countryPercent}%
+                </text>
+              </PieChart>
+
+
+            </ResponsiveContainer>
+            </div>
+             
         <h3>Top 10 Countries By Report Count</h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
@@ -182,7 +235,9 @@ function App() {
               <Legend/>
               <Line type="monotone" dataKey="count" stroke='#82ca9d' />
             </LineChart>             
-          </ResponsiveContainer>        
+          </ResponsiveContainer>  
+
+          
         </div>
       </div>
     </div>
