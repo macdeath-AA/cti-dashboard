@@ -1,6 +1,6 @@
 # CTI Threat Dashboard
 
-A simple React-based dashboard for visualizing threat intelligence data from [https://www.abuseipdb.com/](AbuseIPDB) sources. The interactive frontend dashboard is built with React + Recharts and the Python backend is used to fetch, parse, and clean CTI data from AbuseIPDB data source.
+A simple React-based dashboard for visualizing threat intelligence data from [AbuseIPDB](https://www.abuseipdb.com/) sources. The interactive frontend dashboard is built with React + Recharts and the Python backend is used to fetch, parse, and clean CTI data from AbuseIPDB data source.
 
 ## Features
 
