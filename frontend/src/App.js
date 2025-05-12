@@ -3,7 +3,6 @@ import './App.css';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart, Legend} from 'recharts';
-
 countries.registerLocale(enLocale)
 
 function App() {
@@ -79,6 +78,7 @@ function App() {
   const timeSeriesData = Object.entries(bins)
   .map(([time, count]) => ({time, count}))
   .sort((a,b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`))
+
 
   return (
 
@@ -156,7 +156,7 @@ function App() {
 
       {/* charts */}
       <div style={{flex:1, height: '400px'}}>
-        <h2>Graphs and Plots </h2>
+        <h2>Graphs and Plots </h2>        
         <h3>Top 10 Countries By Report Count</h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
@@ -181,14 +181,9 @@ function App() {
               <Tooltip/>
               <Legend/>
               <Line type="monotone" dataKey="count" stroke='#82ca9d' />
-
-            </LineChart>
-             
-          </ResponsiveContainer>
-
+            </LineChart>             
+          </ResponsiveContainer>        
         </div>
-
-
       </div>
     </div>
     </div>
