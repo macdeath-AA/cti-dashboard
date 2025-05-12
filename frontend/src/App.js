@@ -12,7 +12,7 @@ function App() {
   const [latestTimestamp, setLatestTimestamp] = useState(null);
 
   useEffect(() => {
-    fetch('/full_data.json')
+    fetch('full_data.json')
     .then(res => res.json())
     .then(json => {
       setData(json);
