@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart, Legend} from 'recharts';
 
 countries.registerLocale(enLocale)
 
@@ -10,14 +10,18 @@ function App() {
   const [data, setData] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState('All');
   const [selectedTime, setSelectedTime] = useState('All Time');
+  const [latestTimestamp, setLatestTimestamp] = useState(null);
 
   useEffect(() => {
     fetch('/full_data.json')
     .then(res => res.json())
-    .then(json => setData(json))
+    .then(json => {
+      setData(json);
+      const maxTimestamp = new Date(Math.max(...json.map(e => new Date(e.lastReportedAt))));
+      setLatestTimestamp(maxTimestamp)
+    })
     .catch(err => console.error('Error fetching:', err))
   },[]);
-
 
   const getCountryName = (code) => {
     return countries.getName(code, 'en') || code;
@@ -28,20 +32,21 @@ function App() {
   );
 
   const isWithinRange = (dateStr, range) => {
-    const now = new Date();
+    if (!latestTimestamp) return false;
     const entryDate = new Date(dateStr);
+    
 
     const ranges = {
+    'Past 5 Minutes': 5 * 60 * 1000,
+    'Past 15 Minutes': 15 * 60 * 1000,
+    'Past 30 Minutes': 30 * 60 * 1000,
     'Past Hour': 60 * 60 * 1000,
-    'Past 12 Hours': 12 * 60 * 60 * 1000,
-    'Past Week': 7 * 24 * 60 * 60 * 1000,
-    'Past Month': 30 * 24 * 60 * 60 * 1000,
-    'Past Year': 365 * 24 * 60 * 60 * 1000,
-    'Past 5 Years': 5 * 365 * 24 * 60 * 60 * 1000
+    'Past 2 Hours': 2 * 60 * 60 * 1000
     };
 
     if (range ==='All Time') return true;
-    return now - entryDate <= ranges[range]
+
+    return latestTimestamp - entryDate <= ranges[range]
   }
 
   const filteredData = data.filter(entry => {
@@ -60,7 +65,21 @@ function App() {
   .map(([name, count]) => ({name, count}))
   .sort((a,b) => b.count - a.count)
   .slice(0,10)
-  
+
+  const binSizeMs = 30*60*1000;
+  const bins = {};
+
+  filteredData.forEach(entry => {
+    const date = new Date(entry.lastReportedAt);
+    const rounded = new Date(Math.floor(date.getTime()/binSizeMs ) * binSizeMs);
+    const label = rounded.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    bins[label] = (bins[label] || 0) + 1;
+  });
+
+  const timeSeriesData = Object.entries(bins)
+  .map(([time, count]) => ({time, count}))
+  .sort((a,b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`))
+
   return (
 
     <div className='App'>
@@ -78,7 +97,7 @@ function App() {
       <div style={{ display: 'flex', padding: '1rem' }}>
         {/* Table */}
       <div style={{ flex: 1.2, marginRight: '1rem' }}> 
-      <div style={{ maxHeight: '410px', overflowY: 'auto' }}>
+      <div style={{  overflowY: 'auto' }}>
         <h2>Abuse IPDB Database </h2>
       <table>
         <thead>
@@ -104,7 +123,7 @@ function App() {
               onChange={e => setSelectedTime(e.target.value)}
               style={{marginTop: '5px'}}            
               >
-              {['All Time', 'Past Hour', 'Past 12 Hours', 'Past Week', 'Past Month', 'Past Year', 'Past 5 Years'].map(
+              {['All Time', 'Past 5 Minutes', 'Past 15 Minutes', 'Past 30 Minutes', 'Past Hour', 'Past 2 Hours'].map(
                 option => (
                   <option key={option} value={option }>{option} </option>
                 ))}
@@ -149,10 +168,25 @@ function App() {
             <YAxis type='category' dataKey="name" width={100}/>
             <Tooltip/> 
             <Bar dataKey="count" fill='#8884d8' />
-
           </BarChart>
-
         </ResponsiveContainer>
+        
+        <h3 style={{marginTop: '2rem'}}> Reports Over Time (30 min bins)</h3>
+        <div style={{height:300}}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={timeSeriesData} >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date"/>
+              <YAxis/>
+              <Tooltip/>
+              <Legend/>
+              <Line type="monotone" dataKey="count" stroke='#82ca9d' />
+
+            </LineChart>
+             
+          </ResponsiveContainer>
+
+        </div>
 
 
       </div>
