@@ -19,10 +19,8 @@ A simple React-based dashboard for visualizing threat intelligence data from [Ab
 
 1. Clone the repository:
 
-   ```bash
-   
-   git clone https://github.com/macdeath-AA/cti-dashboard.git
-   
+   ```
+      git clone https://github.com/macdeath-AA/cti-dashboard.git   
    ```
 
 3. Install dependencies:
