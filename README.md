@@ -18,11 +18,14 @@ A simple React-based dashboard for visualizing threat intelligence data from [Ab
 - Python 3.8+
 
 1. Clone the repository:
+
    ```bash
+   
    git clone https://github.com/macdeath-AA/cti-dashboard.git
+   
    ```
 
-2. Install dependencies:
+3. Install dependencies:
    ```bash
    cd cti-dashboard/frontend
    npm install
